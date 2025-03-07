@@ -1,8 +1,9 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import { UserModel } from "./db";
+import { ContentModel, UserModel } from "./db";
 import jwt from "jsonwebtoken";
+import { authMiddleware } from "./middleware";
 
 dotenv.config();
 
@@ -22,14 +23,20 @@ app.post("/api/v1/signup", async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
 
-  await UserModel.create({
-    username,
-    password,
-  });
+  try {
+    await UserModel.create({
+      username,
+      password,
+    });
 
-  res.status(200).json({
-    message: "user signed up successfull",
-  });
+    res.status(200).json({
+      message: "user signed up successfull",
+    });
+  } catch (e) {
+    res.status(411).json({
+      message: "user already exists",
+    });
+  }
 });
 
 app.post("/api/v1/signin", async (req, res) => {
@@ -50,12 +57,28 @@ app.post("/api/v1/signin", async (req, res) => {
     });
   } else {
     res.status(403).json({
-      message: "user not found",
+      message: "invalid credentials",
     });
   }
 });
 
-app.post("/api/v1/content", (req, res) => {});
+app.post("/api/v1/content", authMiddleware, async (req, res) => {
+  const link = req.body.link;
+  const type = req.body.type;
+  const title = req.body.title;
+
+  await ContentModel.create({
+    link,
+    type,
+    title,
+    userId: req.userId,
+    tags: [],
+  });
+
+  res.json({
+    message: "content created",
+  });
+});
 
 app.get("/api/v1/content", (req, res) => {});
 
