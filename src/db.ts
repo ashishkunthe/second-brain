@@ -15,7 +15,7 @@ const tagSchema = new Schema(
   { timestamps: true }
 );
 
-const contentTypes = ["image", "video", "article", "audio"];
+const contentTypes = ["image", "video", "article", "audio", "youtube", "tweet"];
 
 const contentSchema = new Schema(
   {

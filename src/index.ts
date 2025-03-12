@@ -5,20 +5,16 @@ import { ContentModel, LinkModel, UserModel } from "./db";
 import jwt from "jsonwebtoken";
 import { authMiddleware } from "./middleware";
 import { generateRandomString } from "./utils";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 
 mongoose.connect(process.env.MONGO_CONNECT as string);
-
-app.get("/", (req, res) => {
-  res.json({
-    message: "don't worry server is running",
-  });
-});
 
 app.post("/api/v1/signup", async (req, res) => {
   const username = req.body.username;
@@ -54,7 +50,7 @@ app.post("/api/v1/signin", async (req, res) => {
       process.env.JWT_SECRET as string
     );
     res.status(200).json({
-      message: token,
+      token: token,
     });
   } else {
     res.status(403).json({
